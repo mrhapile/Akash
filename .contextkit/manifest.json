@@ -1,0 +1,119 @@
+{
+  "package": "@akashanand/contextkit",
+  "version": "0.2.0",
+  "cwd": "/Users/mrhapile/portfolio ",
+  "agents": [
+    "codex"
+  ],
+  "skills": [
+    "scope",
+    "architect",
+    "remember",
+    "review",
+    "recover",
+    "imprint",
+    "develop",
+    "test",
+    "audit",
+    "check",
+    "debug",
+    "document",
+    "sync"
+  ],
+  "signature": "b3c325cd23064b56d47739da0dc48d622da4df5135f3d13bcd27f034fa5b0e2a",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "type": "guide"
+    },
+    {
+      "path": "context/agent-context.md",
+      "type": "base"
+    },
+    {
+      "path": "context/memory.md",
+      "type": "base"
+    },
+    {
+      "path": "context/ai-workflow-rules.md",
+      "type": "base"
+    },
+    {
+      "path": "context/code-standards.md",
+      "type": "base"
+    },
+    {
+      "path": "context/architecture.md",
+      "type": "base"
+    },
+    {
+      "path": "context/progress-tracker.md",
+      "type": "base"
+    },
+    {
+      "path": "context/project-overview.md",
+      "type": "base"
+    },
+    {
+      "path": "context/ui-context.md",
+      "type": "base"
+    },
+    {
+      "path": ".contextkit/skills/scope.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/architect.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/remember.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/review.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/recover.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/imprint.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/develop.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/test.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/audit.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/check.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/debug.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/document.md",
+      "type": "skill"
+    },
+    {
+      "path": ".contextkit/skills/sync.md",
+      "type": "skill"
+    },
+    {
+      "path": ".codex/AGENTS.md",
+      "type": "agent"
+    }
+  ],
+  "installedAt": "2026-08-11T13:32:32.721Z"
+}
