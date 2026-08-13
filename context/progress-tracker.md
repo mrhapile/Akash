@@ -1,6 +1,6 @@
 # Progress Tracker
 
-This project is still at the context and setup stage. The next work should move from PRD and reference assets into a working React/Vite implementation.
+This project has moved past the initial setup stage. The hero implementation is in place, and the next work should build out the remaining sections and refine the motion/details.
 
 ## Milestones
 
@@ -12,12 +12,12 @@ This project is still at the context and setup stage. The next work should move 
 
 ## Current Status
 
-Current phase: documentation and planning are complete enough to begin implementation.
+Current phase: the hero transition is implemented and the docs are aligned with the new state.
 
-Next concrete step: scaffold or connect the React/Vite app, wire in the shared content structure, and start the hero section with the provided visual direction.
+Next concrete step: add the remaining page sections and tune the hero timing/placement on real devices if needed.
 
 ## Risks / Blockers
 
-- No application code or package manifest is present yet, so implementation details still need to be confirmed by the scaffold
-- Hero artwork must be created or transformed from the reference images before the signature layout can be completed
-- Motion work needs careful reduced-motion handling so the experience stays accessible
+- Final content for projects, about copy, and socials still needs to be assembled
+- The character landing position and video timing may need a final visual polish pass on different screen sizes
+- Production host flow will be confirmed when the repo deployment is ready

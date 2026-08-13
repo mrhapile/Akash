@@ -1,7 +1,7 @@
 # Current Landing Page
 
 ## Overall Feel
-The landing page is a calm, editorial portfolio hero with a warm cream background, dark navy typography, and a full-bleed cinematic video backdrop. The content sits cleanly on top of the background as real HTML, keeping the layout readable and minimal.
+The landing page is a calm, editorial portfolio hero with a warm cream poster image, dark navy typography, and a full-bleed cinematic scroll transition. The hero starts as a static composition and then crossfades into the video scene as the user scrolls.
 
 ## Top Area
 - A slim navbar sits across the top.
@@ -16,12 +16,14 @@ The landing page is a calm, editorial portfolio hero with a warm cream backgroun
   - `web experiences.`
 - Below the headline is a short description about crafting performant, engaging websites.
 - A rounded CTA button labeled `View selected work` sits underneath, with an orange circular arrow on the right.
+- During scroll, the role label, headline, description, CTA, and the work strip all fade out completely.
 
 ## Background / Visual Layer
-- The hero uses a full-width video background.
-- The video covers the entire hero and sits behind all text.
-- There are no visible PNG mountain layers anymore.
-- The background blends into the page without a visible card, box, or rounded container.
+- The hero starts with `Initial-hero.png` as the visible poster layer.
+- The existing mountain/sun video fades in beneath the poster as the scroll starts.
+- A transparent character PNG rises up from below the viewport and lands above the video.
+- The navbar remains visible while the rest of the hero UI fades away.
+- The scene stays edge-to-edge without a visible card, box, shadow, or rounded container.
 
 ## Bottom Strip
 - A dark navy strip spans the bottom of the hero.
@@ -30,16 +32,18 @@ The landing page is a calm, editorial portfolio hero with a warm cream backgroun
   - `UI / UX`
   - `Motion`
   - `Front-end`
+- The strip is part of the initial hero state and fades away once the scroll transition begins.
 
 ## Motion
-- The hero animates in with a soft staged reveal.
-- The video is tied to scroll progress with `GSAP ScrollTrigger`.
-- The hero is pinned during the scroll-driven video playback.
-- The text fades and rises in, while the video scrubs smoothly forward and backward with scrolling.
+- The hero is pinned at `100vh` with `GSAP ScrollTrigger` and `scrub: true`.
+- The poster, video, and character are all tied to the same scroll progress.
+- The video scrubs smoothly with scrolling, with no hard cuts or flashes.
+- The character rises from below the viewport as the sun rises in the animation.
+- Reduced-motion mode skips the scrubbed sequence and keeps the hero accessible and static.
 
 ## Responsive Behavior
 - On smaller screens, the layout keeps the same structure.
-- Text remains above the video background.
+- The character scales and repositions so it remains readable without horizontal overflow.
 - The strip stacks more naturally on mobile to preserve readability.
 
 ## Current Impression

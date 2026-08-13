@@ -12,7 +12,8 @@
 - Stack direction: React + Vite with GSAP, ScrollTrigger, and Lenis
 - Visual direction: calm, editorial, Japanese watercolor-inspired
 - Visual source of truth: `reference/portfolio-direction-reference.png`
-- Production hero assets: `reference/mountains-back.png`, `reference/mountains-middle.png`, `reference/mountains-front.png`, `reference/sun.png`, and `reference/tree.png`
+- Current hero layers: `public/hero/Initial-hero.png` poster, `public/hero/1786473783457496.mp4` video, and `public/hero/character.png` character cutout
+- The hero now crossfades from the poster into the pinned scroll-scrubbed video while the character rises in above the mountains
 
 ## Deployment
 
@@ -22,12 +23,14 @@
 ## Current Focus
 
 - Keep the portfolio aligned with the PRD and the rewritten context files
-- Build the site around the hero composition and selected work sections
-- Preserve accessibility, reduced-motion support, and readable text over artwork
-- Current problem: the implemented landing page does not yet match the reference composition closely enough and needs to be reworked toward the exact layout, spacing, hierarchy, and paper-texture treatment shown in `portfolio-direction-reference.png`
-- Keep the reference image as the only design guide; do not treat it as a runtime asset
+- Preserve accessibility, reduced-motion support, and readable text over the hero sequence
+- Maintain the pinned, scroll-scrubbed hero transition with the poster, video, and character layered cleanly
+- Keep the navbar visible while fading the role label, headline, description, CTA, and `Selected Work` strip away on scroll
+- Keep the hero edge-to-edge without a visible wrapper/card, border, or rounded container
+- Use the reference image as the visual guide for composition, type, spacing, and hierarchy
 
 ## Open Questions
 
 - Final content for projects, about copy, and socials still needs to be assembled
 - Final production host flow will be confirmed when the repo deployment is ready
+- The character’s final resting position may still need visual tuning after more browser/device checks
