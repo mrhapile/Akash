@@ -4,7 +4,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const heroPosterSrc = `${import.meta.env.BASE_URL}hero/Initial-hero.png`;
 const heroVideoSrc = `${import.meta.env.BASE_URL}hero/1786473783457496.mp4`;
+const heroCharacterSrc = `${import.meta.env.BASE_URL}hero/character.png`;
 
 export function Hero({ reducedMotion }) {
   const sectionRef = useRef(null);
@@ -15,7 +17,9 @@ export function Hero({ reducedMotion }) {
   const copyRef = useRef(null);
   const ctaRef = useRef(null);
   const stripRef = useRef(null);
+  const posterRef = useRef(null);
   const videoRef = useRef(null);
+  const characterRef = useRef(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -34,8 +38,9 @@ export function Hero({ reducedMotion }) {
       ctaRef.current,
       stripRef.current,
     ].filter(Boolean);
+    const textFadeTargets = [roleRef.current, ...titleLines, copyRef.current, ctaRef.current].filter(Boolean);
 
-    let videoTrigger = null;
+    let scrollTimeline = null;
 
     const syncVideoToScroll = (progress) => {
       if (!Number.isFinite(video.duration) || video.duration <= 0) {
@@ -45,7 +50,7 @@ export function Hero({ reducedMotion }) {
       const endTime = Math.max(video.duration - 0.01, 0);
       const nextTime = progress * endTime;
 
-      if (Math.abs(video.currentTime - nextTime) > 0.03) {
+      if (Math.abs(video.currentTime - nextTime) > 0.02) {
         video.currentTime = nextTime;
       }
     };
@@ -55,25 +60,35 @@ export function Hero({ reducedMotion }) {
         return;
       }
 
-      if (videoTrigger) {
-        videoTrigger.kill();
-        videoTrigger = null;
+      if (scrollTimeline) {
+        scrollTimeline.kill();
+        scrollTimeline = null;
       }
 
       video.pause();
       video.currentTime = 0;
 
-      videoTrigger = ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${Math.max(window.innerHeight * 2.5, 2200)}`,
-        scrub: true,
-        pin: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => syncVideoToScroll(self.progress),
-        onRefresh: (self) => syncVideoToScroll(self.progress),
+      scrollTimeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${Math.max(window.innerHeight * 2.8, 2600)}`,
+          scrub: true,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => syncVideoToScroll(self.progress),
+          onRefresh: (self) => syncVideoToScroll(self.progress),
+        },
       });
+
+      scrollTimeline
+        .to(posterRef.current, { autoAlpha: 0, duration: 0.2 }, 0)
+        .to(video, { autoAlpha: 1, duration: 0.2 }, 0)
+        .to(textFadeTargets, { autoAlpha: 0, duration: 0.08 }, 0.01)
+        .to(stripRef.current, { autoAlpha: 0, duration: 0.08 }, 0.01)
+        .to(characterRef.current, { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: 'power2.out' }, 0.16);
 
       syncVideoToScroll(0);
       ScrollTrigger.refresh();
@@ -83,37 +98,25 @@ export function Hero({ reducedMotion }) {
       setupVideoScroll();
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    gsap.set(posterRef.current, { autoAlpha: 1 });
+    gsap.set(video, { autoAlpha: 0 });
+    gsap.set(characterRef.current, { autoAlpha: 0, y: '28vh', scale: 0.98 });
+    gsap.set(navRef.current, { autoAlpha: 1, y: 0 });
 
     if (reducedMotion) {
-      gsap.set(motionTargets, { clearProps: 'all', opacity: 1, x: 0, y: 0 });
+      gsap.set(posterRef.current, { autoAlpha: 1 });
+      gsap.set(video, { autoAlpha: 0 });
+      gsap.set(characterRef.current, { autoAlpha: 0, y: 0, scale: 1 });
+      gsap.set(motionTargets, { autoAlpha: 1, x: 0, y: 0 });
       video.pause();
       video.currentTime = 0;
       return () => {
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       };
     }
 
-    const context = gsap.context(() => {
-      gsap.set(motionTargets, { opacity: 0 });
-      gsap.set(navRef.current, { y: -10 });
-      gsap.set(roleRef.current, { y: 12 });
-      gsap.set(titleLines, { y: 28 });
-      gsap.set(copyRef.current, { y: 14 });
-      gsap.set(ctaRef.current, { y: 14 });
-      gsap.set(stripRef.current, { y: 16 });
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
 
-      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      intro
-        .to(navRef.current, { opacity: 1, y: 0, duration: 0.45 })
-        .to(roleRef.current, { opacity: 1, y: 0, duration: 0.45 }, 0.06)
-        .to(lineOneRef.current, { opacity: 1, y: 0, duration: 0.74 }, 0.12)
-        .to(lineTwoRef.current, { opacity: 1, y: 0, duration: 0.74 }, 0.2)
-        .to(copyRef.current, { opacity: 1, y: 0, duration: 0.48 }, 0.34)
-        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.45 }, 0.42)
-        .to(stripRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.54);
-    }, section);
+    gsap.set(motionTargets, { autoAlpha: 1, y: 0 });
 
     if (video.readyState >= 1) {
       setupVideoScroll();
@@ -123,18 +126,16 @@ export function Hero({ reducedMotion }) {
 
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      if (videoTrigger) {
-        videoTrigger.kill();
+      if (scrollTimeline) {
+        scrollTimeline.kill();
       }
-      context.revert();
     };
   }, [reducedMotion]);
 
   return (
     <section className="hero" id="hero" ref={sectionRef} aria-labelledby="hero-title">
-      <div className="hero__texture" aria-hidden="true" />
-
       <div className="hero__art" aria-hidden="true">
+        <img ref={posterRef} className="hero__poster" src={heroPosterSrc} alt="" loading="eager" decoding="async" />
         <video
           ref={videoRef}
           className="hero__video"
@@ -144,7 +145,15 @@ export function Hero({ reducedMotion }) {
           playsInline
           tabIndex={-1}
         />
-        <div className="hero__videoShade" />
+        <img
+          ref={characterRef}
+          className="hero__character"
+          src={heroCharacterSrc}
+          alt=""
+          loading="eager"
+          decoding="async"
+          draggable="false"
+        />
       </div>
 
       <header className="hero__nav" ref={navRef}>
