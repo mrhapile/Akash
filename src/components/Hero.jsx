@@ -1,12 +1,14 @@
 import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { About } from './About';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const heroPosterSrc = `${import.meta.env.BASE_URL}hero/Initial-hero.png`;
 const heroVideoSrc = `${import.meta.env.BASE_URL}hero/1786473783457496.mp4`;
-const heroCharacterSrc = `${import.meta.env.BASE_URL}hero/character.png`;
+const heroCharacterSrc = `${import.meta.env.BASE_URL}hero/Second-char.png`;
+const MOUNTAIN_PHASE_END = 0.55;
 
 export function Hero({ reducedMotion }) {
   const sectionRef = useRef(null);
@@ -20,6 +22,8 @@ export function Hero({ reducedMotion }) {
   const posterRef = useRef(null);
   const videoRef = useRef(null);
   const characterRef = useRef(null);
+  const aboutRef = useRef(null);
+  const scrollTriggerRef = useRef(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -41,6 +45,24 @@ export function Hero({ reducedMotion }) {
     const textFadeTargets = [roleRef.current, ...titleLines, copyRef.current, ctaRef.current].filter(Boolean);
 
     let scrollTimeline = null;
+    let hashFrame = 0;
+
+    const scrollToAboutHash = () => {
+      const scrollTrigger = scrollTriggerRef.current;
+
+      if (window.location.hash !== '#about' || !scrollTrigger) {
+        return;
+      }
+
+      window.cancelAnimationFrame(hashFrame);
+      hashFrame = window.requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * MOUNTAIN_PHASE_END,
+          behavior: 'instant',
+        });
+        ScrollTrigger.update();
+      });
+    };
 
     const syncVideoToScroll = (progress) => {
       if (!Number.isFinite(video.duration) || video.duration <= 0) {
@@ -53,6 +75,14 @@ export function Hero({ reducedMotion }) {
       if (Math.abs(video.currentTime - nextTime) > 0.02) {
         video.currentTime = nextTime;
       }
+    };
+
+    const syncSceneToScroll = (progress) => {
+      const mountainProgress = gsap.utils.clamp(0, 1, progress / MOUNTAIN_PHASE_END);
+      const paperProgress = gsap.utils.clamp(0, 1, (progress - MOUNTAIN_PHASE_END) / (1 - MOUNTAIN_PHASE_END));
+
+      syncVideoToScroll(mountainProgress);
+      aboutRef.current?.setProgress(paperProgress);
     };
 
     const setupVideoScroll = () => {
@@ -73,25 +103,35 @@ export function Hero({ reducedMotion }) {
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: () => `+=${Math.max(window.innerHeight * 2.8, 2600)}`,
+          end: () => `+=${Math.max(window.innerHeight * 5.1, 4720)}`,
           scrub: true,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate: (self) => syncVideoToScroll(self.progress),
-          onRefresh: (self) => syncVideoToScroll(self.progress),
+          onUpdate: (self) => syncSceneToScroll(self.progress),
+          onRefresh: (self) => syncSceneToScroll(self.progress),
         },
       });
 
-      scrollTimeline
-        .to(posterRef.current, { autoAlpha: 0, duration: 0.2 }, 0)
-        .to(video, { autoAlpha: 1, duration: 0.2 }, 0)
-        .to(textFadeTargets, { autoAlpha: 0, duration: 0.08 }, 0.01)
-        .to(stripRef.current, { autoAlpha: 0, duration: 0.08 }, 0.01)
-        .to(characterRef.current, { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: 'power2.out' }, 0.16);
+      scrollTriggerRef.current = scrollTimeline.scrollTrigger;
 
-      syncVideoToScroll(0);
+      scrollTimeline
+        .to(posterRef.current, { autoAlpha: 0, duration: 0.2 * MOUNTAIN_PHASE_END }, 0)
+        .to(video, { autoAlpha: 1, duration: 0.2 * MOUNTAIN_PHASE_END }, 0)
+        .to(textFadeTargets, { autoAlpha: 0, duration: 0.08 * MOUNTAIN_PHASE_END }, 0.01 * MOUNTAIN_PHASE_END)
+        .to(stripRef.current, { autoAlpha: 0, duration: 0.08 * MOUNTAIN_PHASE_END }, 0.01 * MOUNTAIN_PHASE_END)
+        .to(characterRef.current, {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.42 * MOUNTAIN_PHASE_END,
+          ease: 'power2.out',
+        }, 0.16 * MOUNTAIN_PHASE_END)
+        .to({}, { duration: 1 - MOUNTAIN_PHASE_END }, MOUNTAIN_PHASE_END);
+
+      syncSceneToScroll(0);
       ScrollTrigger.refresh();
+      scrollToAboutHash();
     };
 
     const handleLoadedMetadata = () => {
@@ -108,6 +148,7 @@ export function Hero({ reducedMotion }) {
       gsap.set(video, { autoAlpha: 0 });
       gsap.set(characterRef.current, { autoAlpha: 0, y: 0, scale: 1 });
       gsap.set(motionTargets, { autoAlpha: 1, x: 0, y: 0 });
+      aboutRef.current?.setProgress(0);
       video.pause();
       video.currentTime = 0;
       return () => {
@@ -125,12 +166,29 @@ export function Hero({ reducedMotion }) {
     }
 
     return () => {
+      window.cancelAnimationFrame(hashFrame);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       if (scrollTimeline) {
         scrollTimeline.kill();
       }
+      scrollTriggerRef.current = null;
     };
   }, [reducedMotion]);
+
+  const handleAboutNavigation = (event) => {
+    const scrollTrigger = scrollTriggerRef.current;
+
+    if (!scrollTrigger) {
+      return;
+    }
+
+    event.preventDefault();
+    window.history.replaceState(null, '', '#about');
+    window.scrollTo({
+      top: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * MOUNTAIN_PHASE_END,
+      behavior: reducedMotion ? 'auto' : 'smooth',
+    });
+  };
 
   return (
     <section className="hero" id="hero" ref={sectionRef} aria-labelledby="hero-title">
@@ -154,6 +212,7 @@ export function Hero({ reducedMotion }) {
           decoding="async"
           draggable="false"
         />
+        <About ref={aboutRef} reducedMotion={reducedMotion} />
       </div>
 
       <header className="hero__nav" ref={navRef}>
@@ -163,7 +222,7 @@ export function Hero({ reducedMotion }) {
 
         <nav className="hero__menu" aria-label="Primary">
           <a href="#work">Work</a>
-          <a href="#about">About</a>
+          <a href="#about" onClick={handleAboutNavigation}>About</a>
           <a href="#notes">Notes</a>
           <a href="#contact">Contact</a>
         </nav>
