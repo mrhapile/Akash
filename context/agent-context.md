@@ -13,3 +13,7 @@ Personal portfolio web application.
 ## Primary Purpose
 
 Showcase selected development and design work through an editorial, Japanese watercolor-inspired experience that feels polished, memorable, and easy to contact from.
+
+## Current Motion Shape
+
+The current experience is a pinned Hero section that hands off into an About parchment sequence and then into a dedicated third-screen video scrub. Keep the motion readable, reversible, and responsive rather than busy.

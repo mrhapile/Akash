@@ -14,7 +14,7 @@ This project is for recruiters, hiring teams, internship employers, creative col
 
 In scope:
 
-- Responsive portfolio pages with a strong hero, selected work, about, process, notes, and contact/footer sections
+- Responsive portfolio pages with a strong hero, a scroll-scrubbed About sequence, a third-screen video handoff, selected work, process, notes, and contact/footer sections
 - Purposeful scroll-driven motion with GSAP, ScrollTrigger, and Lenis
 - Editorial typography and watercolor-inspired layered artwork
 - Accessible, performant delivery across desktop, tablet, and mobile

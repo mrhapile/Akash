@@ -7,7 +7,7 @@ This repository should be edited with a bias toward small, reversible changes an
 Ask before making changes that would alter the portfolio’s direction or risk rework, especially:
 
 - Visual redesigns that change the editorial/watercolor direction
-- Motion changes that increase intensity, add new animation systems, or affect reduced-motion behavior
+- Motion changes that increase intensity, add new animation systems, affect reduced-motion behavior, or change the Hero/About/ThirdScreen scroll handoff
 - Content changes to projects, bio copy, or contact details
 - Structural changes that remove or rename core sections from the PRD
 
@@ -19,12 +19,13 @@ Treat work as complete only after:
 - The layout behaves well on desktop, tablet, and mobile
 - Keyboard focus is visible and reduced-motion behavior still works
 - Decorative motion does not obscure text or content
+- Scroll-scrubbed media loads metadata cleanly, reveals only after a decoded frame is ready, and scrubs smoothly in both directions without blank frames
 
 ## Handoff
 
 Preserve the following so the next person can move quickly:
 
 - The current section structure and any section order decisions
-- Asset placement and naming for hero artwork
+- Asset placement and naming for hero artwork and the third-screen video
 - Motion assumptions, especially anything tied to scroll or reduced-motion behavior
 - Any content source files that drive selected work, about copy, or contact links
