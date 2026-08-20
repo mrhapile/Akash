@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { Hero } from './components/Hero';
+import { ThirdScreen } from './components/ThirdScreen';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -48,6 +49,7 @@ export default function App() {
         Skip to content
       </a>
       <Hero reducedMotion={prefersReducedMotion} />
+      <ThirdScreen reducedMotion={prefersReducedMotion} />
     </div>
   );
 }
