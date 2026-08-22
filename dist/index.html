@@ -7,7 +7,7 @@
       name="description"
       content="A motion-led developer and design portfolio with editorial typography and watercolor-inspired landscape artwork."
     />
-    <link rel="preload" as="image" href="/hero/ink-splash-sprite.png" />
+    <link rel="preload" as="image" href="/hero/ink-splash-reveal-sprite.png" />
     <style>
       html.ink-loader-active,
       html.ink-loader-active body {
@@ -19,9 +19,8 @@
         inset: 0;
         z-index: 2147483647;
         overflow: hidden;
-        background: #eadcb9;
         opacity: 1;
-        transition: opacity 180ms ease;
+        transition: opacity 560ms ease;
       }
 
       #ink-loader.is-exiting {
@@ -29,37 +28,52 @@
         pointer-events: none;
       }
 
-      #ink-loader-sprite {
+      #ink-loader-paper {
         position: absolute;
         top: 50%;
         left: 50%;
         width: 160vmax;
         height: 160vmax;
-        background-image: url("/hero/ink-splash-sprite.png");
-        background-repeat: no-repeat;
-        background-size: 2400% 100%;
-        background-position: 0 0;
+        background: #eadcb9;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: 2400% 100%;
+        mask-size: 2400% 100%;
+        -webkit-mask-position: 0 0;
+        mask-position: 0 0;
         transform: translate(-50%, -50%);
-        will-change: background-position;
+        will-change: -webkit-mask-position, mask-position;
       }
 
-      #ink-loader.is-playing #ink-loader-sprite {
-        animation: ink-splash-frames 900ms steps(23, end) forwards;
+      #ink-loader.is-playing #ink-loader-paper,
+      #ink-loader.is-reduced #ink-loader-paper {
+        -webkit-mask-image: url("/hero/ink-splash-reveal-sprite.png");
+        mask-image: url("/hero/ink-splash-reveal-sprite.png");
+      }
+
+      #ink-loader.is-playing #ink-loader-paper {
+        animation: ink-splash-frames 3600ms steps(23, end) forwards;
+      }
+
+      #ink-loader.is-reduced #ink-loader-paper {
+        -webkit-mask-position: 100% 0;
+        mask-position: 100% 0;
       }
 
       @keyframes ink-splash-frames {
         to {
-          background-position: 100% 0;
+          -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
         }
       }
     </style>
     <title>Akash Anand | Portfolio</title>
-    <script type="module" crossorigin src="/assets/index-BC-YymLD.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D70BPQqH.css">
+    <script type="module" crossorigin src="/assets/index-DMMVInkC.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CUj4Q8kO.css">
   </head>
   <body>
-    <div id="ink-loader" aria-hidden="true" data-sprite="/hero/ink-splash-sprite.png">
-      <div id="ink-loader-sprite"></div>
+    <div id="ink-loader" aria-hidden="true" data-sprite="/hero/ink-splash-reveal-sprite.png">
+      <div id="ink-loader-paper"></div>
     </div>
     <div id="root" inert aria-hidden="true"></div>
     <script>
@@ -68,11 +82,12 @@
         window.scrollTo(0, 0);
 
         const loader = document.getElementById('ink-loader');
-        const sprite = document.getElementById('ink-loader-sprite');
         const root = document.getElementById('root');
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let animationDone = false;
         let contentReady = false;
+        let spriteReady = false;
+        let started = false;
         let dismissed = false;
 
         const revealPage = () => {
@@ -85,14 +100,14 @@
           loader.classList.add('is-exiting');
           window.__portfolioLoaderComplete = true;
           window.dispatchEvent(new Event('portfolio:loader-complete'));
-          window.setTimeout(() => loader.remove(), 220);
+          window.setTimeout(() => loader.remove(), 680);
         };
 
         const finishAnimation = () => {
           window.setTimeout(() => {
             animationDone = true;
             revealPage();
-          }, 50);
+          }, 400);
         };
 
         const forceReveal = () => {
@@ -101,34 +116,43 @@
           revealPage();
         };
 
+        const startAnimation = () => {
+          if (started || !spriteReady || !contentReady) return;
+          started = true;
+
+          if (reducedMotion) {
+            loader.classList.add('is-reduced');
+            finishAnimation();
+            return;
+          }
+
+          window.requestAnimationFrame(() => loader.classList.add('is-playing'));
+        };
+
         window.addEventListener('portfolio:first-frame-ready', () => {
           contentReady = true;
-          revealPage();
+          startAnimation();
         }, { once: true });
 
         loader.addEventListener('animationend', finishAnimation, { once: true });
         loader.addEventListener('transitionend', () => loader.remove(), { once: true });
 
-        const safetyTimer = window.setTimeout(forceReveal, 2500);
+        const safetyTimer = window.setTimeout(forceReveal, 12000);
         const image = new Image();
         image.src = loader.dataset.sprite;
 
-        const start = () => {
-          if (reducedMotion) {
-            sprite.style.backgroundPosition = '100% 0';
-            finishAnimation();
-            return;
-          }
-          window.requestAnimationFrame(() => loader.classList.add('is-playing'));
+        const markSpriteReady = () => {
+          spriteReady = true;
+          startAnimation();
         };
 
         image.addEventListener('error', forceReveal, { once: true });
         if (image.decode) {
-          image.decode().then(start).catch(forceReveal);
+          image.decode().then(markSpriteReady).catch(forceReveal);
         } else if (image.complete) {
-          start();
+          image.naturalWidth ? markSpriteReady() : forceReveal();
         } else {
-          image.addEventListener('load', start, { once: true });
+          image.addEventListener('load', markSpriteReady, { once: true });
         }
       })();
     </script>
