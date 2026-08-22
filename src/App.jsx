@@ -45,7 +45,7 @@ export default function App() {
 
   return (
     <div className="site-shell">
-      <a className="skip-link" href="#hero">
+      <a className="skip-link" href="#featured-sequence">
         Skip to content
       </a>
       {/* <Hero reducedMotion={prefersReducedMotion} /> */}
