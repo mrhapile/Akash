@@ -1,37 +1,51 @@
 # Code Standards
 
-The codebase should stay consistent with a small React/Vite portfolio and should prefer clarity over abstraction.
+Keep the codebase direct, readable, and lightweight. There is currently no configured formatter, linter, or automated test runner, so follow the existing React/Vite style and verify with the production build.
 
-## Formatting
+## General Style
 
-Source of truth: the repo's formatter and linter once they are added.
+- Use standard React function components and hooks
+- Keep component files in `PascalCase`; hooks and utilities use camelCase
+- Prefer focused constants for motion timings and thresholds
+- Keep static assets under `public/` and reference them through `import.meta.env.BASE_URL` in modules or `%BASE_URL%` in `index.html`
+- Avoid abstractions that hide animation lifecycle or media readiness
+- Preserve unrelated worktree changes
 
-Until tooling is added, keep code:
+## Loader Code
 
-- Consistent with standard React and Vite conventions
-- ASCII-first unless a file already uses other characters
-- Lightweight in structure, with no unnecessary abstraction layers
-- Explicit around motion timing when a section depends on `loadedmetadata`, `loadeddata`, `seeked`, or `ScrollTrigger` progress
+The loader intentionally lives inline in `index.html`. Keep its critical CSS and controller dependency-free so the initial paper state does not wait for React or external styles.
 
-## Naming
+- Never add local-storage or session-storage suppression
+- Do not attach the inverse mask until both the sprite and video frame zero are ready
+- Keep the controller idempotent and retain a finite safety timeout
+- Always restore scrolling, `inert`, and `aria-hidden` before removing the overlay
+- If timing changes, adjust animation, hold, fade/removal buffer, and safety timeout coherently
+- Preserve the `portfolio:first-frame-ready` and `portfolio:loader-complete` event contract
 
-Use descriptive names that match the portfolio structure:
+## Sprite Generation
 
-- Component files in `PascalCase`
-- Utility and data files in `camelCase` or lowercase feature names
-- Section and animation modules named after what they own, such as `heroAnimations` or `projects`
-- Asset names that describe the visual layer, such as `mountains-front` or `tree`
+Use `scripts/generate_ink_splash.py` to modify loader artwork. The generator must remain deterministic, output 24 horizontal 512×512 frames, keep coverage monotonic, and finish with:
 
-## Motion Code
+- a fully opaque final frame in `ink-splash-sprite.png`
+- a fully transparent final frame in `ink-splash-reveal-sprite.png`
 
-When adding or editing scroll-driven media, prefer direct, readable mappings from scroll progress to `video.currentTime`. Pause media while scrubbing, clamp the seek range, and hide the element until a decoded frame is ready so the user never sees a blank handoff.
+Do not hand-edit generated sprites.
 
-## Testing
+## Scroll-Driven Video
 
-Minimum expectation is:
+- Pause media while scrubbing
+- Clamp seeks to a safe final-frame offset
+- Wait for metadata before constructing ScrollTrigger
+- Wait for decoded data before revealing or dispatching readiness
+- Queue the newest requested time instead of issuing overlapping seeks
+- Refresh ScrollTrigger after layout-affecting loader removal
+- Keep reduced-motion media paused at frame zero
 
-- A successful production build
-- A quick manual pass for desktop, tablet, and mobile layout behavior
-- A reduced-motion check for the animated sections
-- A forward and reverse scrub pass for any pinned media sequence, including handoff points between sections
-- No visible horizontal overflow or obvious accessibility regressions
+## Minimum Verification
+
+- `vite build` succeeds
+- `git diff --check` succeeds
+- No console errors or missing assets
+- Loader runs on consecutive reloads and reveals artwork rather than a black/navy fallback
+- Responsive desktop/mobile coverage is centered
+- ThirdScreen remains paused at zero after reveal and scrubs correctly afterward

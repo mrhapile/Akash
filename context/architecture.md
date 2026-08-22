@@ -1,38 +1,50 @@
 # Architecture Context
 
-This site is a section-based React portfolio with static content, decorative media, and motion helpers. Keep the architecture simple and readable so the art direction stays the focus.
+The project is a static React/Vite portfolio with a critical pre-React opening layer and GSAP-driven media sections.
 
-## Components
+## Boot Sequence
 
-The main pieces are:
+`index.html` owns the page-load reveal because it must render before the React bundle:
 
-- `Navbar` for primary navigation to Work, About, Notes, and Contact
-- `Hero` for the editorial headline, call to action, layered landscape composition, and the first scroll-driven handoff
-- `About` for introduction and capabilities, implemented as the parchment-like pinned sequence inside Hero
-- `ThirdScreen` for the dedicated full-viewport video scrub that follows the About completion state
-- `Work` and `ProjectCard` for featured projects
-- `Process` for the scroll-drawn workflow graphic
-- `Notes` for optional writing or thoughts
-- `Footer` for contact and social links
-- Animation helpers for hero reveal, parchment scrubbing, third-screen video scrubbing, parallax, and scroll-triggered effects
-- Static project data in a dedicated data module
+1. HTML starts with `ink-loader-active`; scrolling is locked and `#root` is inert and `aria-hidden`.
+2. A 160vmax warm-paper square covers the viewport.
+3. The browser decodes `public/hero/ink-splash-reveal-sprite.png` while React mounts behind the overlay.
+4. `ThirdScreen` dispatches `portfolio:first-frame-ready` once `loadeddata` can display frame zero.
+5. The loader applies the 24-frame inverse mask with `steps(23, end)` for 3.6 seconds.
+6. It holds for 400 ms, fades for 560 ms, removes itself, unlocks the page, and dispatches `portfolio:loader-complete`.
+7. A 12-second safety timeout reveals the page if either media path fails or stalls.
 
-## Data Flow
+Reduced motion skips sprite frame cycling, applies the final transparent mask state, and follows the same safe handoff.
 
-Content should flow from static data modules and local assets into presentational components. Animation code should enhance rendered sections after mount or on scroll, without becoming the source of truth for content.
+## Live React Tree
 
-Hero artwork should be layered from the `public/hero/` asset set, with text always remaining readable above the visual composition. The About parchment and third-screen video both depend on metadata-loaded media that is scrubbed by ScrollTrigger rather than autoplay.
+`src/main.jsx` mounts `App`. `App` currently provides:
+
+- reduced-motion detection through `usePrefersReducedMotion`
+- Lenis integration when motion is allowed
+- a skip link
+- `ThirdScreen` as the only mounted visual section
+
+`Hero` is imported but commented out. Consequently, its nested `About` component is also dormant.
+
+## ThirdScreen
+
+`ThirdScreen` uses `public/hero/ThirdScreen.mp4` with `object-fit: cover` in a pinned full-viewport section. Metadata creates ScrollTrigger; decoded data reveals the video and signals loader readiness.
+
+Scroll updates write only the latest requested time. A requestAnimationFrame commit and `seeked` gate prevent competing seeks while retaining the newest scroll position. After loader dismissal, `portfolio:loader-complete` triggers a ScrollTrigger refresh.
+
+## Dormant Components and Assets
+
+- `Hero.jsx` and `About.jsx` retain the earlier poster/video/character/parchment sequence but are not mounted.
+- `IntroLoader.jsx` is the unused video-based intro experiment.
+- `Loading.mp4` and `Loading-end.png` remain intentionally unused.
+- `ink-splash-sprite.png` is the black source sprite; `ink-splash-reveal-sprite.png` is its inverse alpha mask and the runtime asset.
+- `scripts/generate_ink_splash.py` deterministically regenerates both 24-frame sprites.
+
+## Planned Structure
+
+Selected work, process, notes, contact, and footer remain product goals, not implemented live sections. Add them as presentational components backed by static data when content is ready.
 
 ## Deployment
 
-The deployment target has not been chosen yet. Assume a static Vite-friendly host for production unless a specific platform is added later.
-
-## Boundaries
-
-Avoid casual changes to:
-
-- The hero composition order and text readability rules
-- Reduced-motion behavior and keyboard accessibility
-- Responsive behavior that prevents horizontal overflow
-- Motion intensity, especially anything that would make the portfolio feel busy instead of crafted
-- The asset naming scheme for hero layers, parchment media, and decorative art
+The project is compatible with static Vite hosting. The portfolio has previously been deployed on Vercel, while the final repository/domain deployment flow remains undecided.

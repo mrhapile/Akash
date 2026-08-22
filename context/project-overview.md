@@ -1,36 +1,52 @@
 # Project Overview
 
-This project is for recruiters, hiring teams, internship employers, creative collaborators, and potential freelance clients. The site should help them understand the owner quickly, see proof of craft, and find a clear way to reach out.
+This portfolio is intended for recruiters, hiring teams, internship employers, creative collaborators, and potential freelance clients. It should communicate Akash Anand’s development and design craft quickly, provide memorable but controlled motion, and make contact straightforward.
 
 ## Audience
 
-- Recruiters and hiring teams who want a fast read on experience and taste
-- Internship employers who want to see potential, clarity, and initiative
-- Developers and designers who care about craft and technical judgment
-- Creative-technology collaborators who want a sense of style and process
-- Potential freelance clients who want an easy path to contact
+- Recruiters and hiring teams seeking a quick read on experience and taste
+- Internship employers evaluating potential, clarity, and initiative
+- Developers and designers interested in front-end craft and motion
+- Creative-technology collaborators
+- Potential freelance clients
 
-## Scope
+## Product Direction
 
-In scope:
+- Calm editorial presentation
+- Japanese watercolor-inspired landscape artwork
+- Purposeful, reversible motion rather than decorative overload
+- Clear typography and content hierarchy over all visual sequences
+- Responsive, accessible behavior across desktop, tablet, and mobile
 
-- Responsive portfolio pages with a strong hero, a scroll-scrubbed About sequence, a third-screen video handoff, selected work, process, notes, and contact/footer sections
-- Purposeful scroll-driven motion with GSAP, ScrollTrigger, and Lenis
-- Editorial typography and watercolor-inspired layered artwork
-- Accessible, performant delivery across desktop, tablet, and mobile
+## Current Delivered Slice
 
-Out of scope for the MVP:
+The live app currently contains:
 
-- Three.js or other heavy 3D systems
-- Authentication, user accounts, or backend-driven workflows
-- E-commerce or transactional features
-- A full CMS unless one is added later by explicit decision
+- An automatic pre-React ink reveal on every page load/reload
+- A warm-paper opening state that reveals the actual first frame of `ThirdScreen.mp4`
+- A full-viewport pinned ThirdScreen video controlled by scroll
+- Reduced-motion behavior and smooth scrolling integration
+
+Hero and About are implemented in source but disabled. Selected work, process, notes, contact, and footer are still roadmap items.
+
+## Intended MVP Scope
+
+- Hero and concise positioning statement
+- Selected projects with clear role, outcome, and proof of craft
+- About/capabilities content
+- Process or working-method section
+- Optional notes or writing
+- Contact and social links
+- The existing intro and motion sequences, provided they remain performant and accessible
+
+## Out of Scope
+
+- Authentication or user accounts
+- E-commerce and transactions
+- Backend-driven workflows
+- Heavy real-time 3D systems such as Three.js
+- A CMS unless explicitly selected later
 
 ## Success Criteria
 
-The project feels useful when a visitor can:
-
-- Understand who the portfolio owner is and what kind of work they do
-- Browse selected projects without friction
-- Experience the motion and art direction without losing readability
-- Reach the owner through an obvious contact path
+A visitor should be able to understand who Akash is, see relevant work, experience the art direction without losing control or readability, and find an obvious contact path. Motion should enhance that path and degrade safely under reduced motion or media failure.

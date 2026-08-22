@@ -1,44 +1,49 @@
 # UI Context
 
-The UI should feel calm, crafted, and editorial, with Japanese watercolor-inspired landscape art supporting the content instead of competing with it.
+The interface should feel calm, crafted, and editorial. Japanese watercolor-inspired art supports the content; it should never compete with readability or interaction.
 
-## UI Stack
+## Visual System
 
-React + Vite.
+- Warm paper/cream base, including loader paper `#eadcb9`
+- Navy `#102f49`, deep navy `#081a2b`, orange `#d9783d`, slate `#537d83`, and deep blue `#174665`
+- Editorial serif headlines paired with a restrained sans-serif body face
+- Subtle grain and watercolor textures
+- Edge-to-edge motion sections without card borders or rounded wrappers
+- Centered `object-fit: cover` video cropping at current breakpoints
 
-## Design System
+## Current Opening Experience
 
-Visual direction:
+- The initial viewport is fully covered by warm paper before React loads
+- No button, skip control, local storage, or session storage is used
+- Once the sprite and `ThirdScreen` frame zero are ready, an organic 24-frame boundary reveals the real artwork from the center
+- The effect uses an inverse alpha mask; black pixels must never be rendered to the visitor
+- Timing: 3.6-second growth, 400 ms hold, 560 ms fade
+- The mask element is a centered 160vmax square with a 2400% horizontal sprite
+- The final frame is transparent, so the fade hands off to an identical live video frame
+- On reduced motion, frame cycling is skipped and the final reveal state is used
 
-- Cream background with navy, orange, slate blue, and deep blue accents
-- Large editorial typography for headlines
-- Subtle paper grain or watercolor texture
-- Layered landscape artwork with restrained motion
-- Full-viewport pinned motion sections should feel like part of the same editorial system, not separate effects
-- Clean section spacing and clear visual hierarchy
+## Current Live Content
 
-Use the PRD palette as the starting point:
-
-- Cream `#F3ECDC`
-- Navy `#102F49`
-- Orange `#D9783D`
-- Slate Blue `#537D83`
-- Deep Blue `#174665`
+Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and scrubs with scroll. Hero/About styles and components remain in the codebase for possible restoration but should not be documented as currently visible.
 
 ## Accessibility
 
-Minimum requirements:
+- Maintain semantic section labels and logical headings as the content structure grows
+- Keep keyboard focus clearly visible
+- Keep `#root` inert and `aria-hidden` only while the loader is active, then restore both
+- Keep scrolling locked during the loader and restore it before ScrollTrigger refresh
+- Honor `prefers-reduced-motion`
+- Avoid hover-only interactions and horizontal overflow
+- Ensure content remains understandable if animation, sprite loading, or video loading fails
 
-- Semantic HTML and logical heading structure
-- Keyboard-visible focus states
-- `prefers-reduced-motion` support
-- No hover-only interactions on mobile
-- Sufficient contrast for text over artwork and backgrounds
+## Responsive Guidance
 
-## UI Notes
+- Preserve the sprite’s square frame ratio and centered crop
+- Use `svh`/`dvh` deliberately for full-screen sections
+- Verify 390px mobile width, tablet portrait, and landscape desktop
+- Reduce decorative density before reducing core content
+- Recheck artwork focal points whenever the live video or `object-position` changes
 
-- The hero is the signature section and must keep text readable over any decorative art
-- The About parchment and third-screen video are sequential full-screen motion beats, so both should stay edge-to-edge, cover the viewport, and avoid blank transitional frames
-- Mobile should reduce decorative density and motion intensity rather than hiding core content
-- Avoid horizontal overflow at all breakpoints
-- Below-the-fold images should be lazy-loaded
+## Known UI Follow-up
+
+The current skip link targets `#hero`, but Hero is disabled. Update the target or restore Hero when the final live section structure is decided.

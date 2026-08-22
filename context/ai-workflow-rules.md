@@ -1,31 +1,48 @@
 # AI Workflow Rules
 
-This repository should be edited with a bias toward small, reversible changes and clear verification. The PRD is the source of truth for product intent until the implementation tells us otherwise.
+Edit this repository with a bias toward small, reversible changes and evidence from the current implementation.
+
+## Source of Truth
+
+- Runtime truth: `index.html`, `src/App.jsx`, mounted components, and referenced assets
+- Product and handoff truth: files under `context/`
+- Visual references: files under `reference/`
+- Do not infer that an existing component is live; confirm that it is mounted from `App.jsx`
 
 ## Ask First
 
-Ask before making changes that would alter the portfolio’s direction or risk rework, especially:
+Ask before making changes that materially alter the portfolio direction or create rework, including:
 
-- Visual redesigns that change the editorial/watercolor direction
-- Motion changes that increase intensity, add new animation systems, affect reduced-motion behavior, or change the Hero/About/ThirdScreen scroll handoff
-- Content changes to projects, bio copy, or contact details
-- Structural changes that remove or rename core sections from the PRD
+- Restoring, removing, or reordering Hero, About, ThirdScreen, or planned content sections
+- Changing project, biography, social, or contact content
+- Replacing the watercolor/editorial direction
+- Adding a new animation system, third-party runtime, CMS, backend, or deployment target
 
-## Verify
+User-requested timing and presentation changes to the existing loader or scroll sequence are already within scope.
 
-Treat work as complete only after:
+## Preserve
 
-- The app builds successfully
-- The layout behaves well on desktop, tablet, and mobile
-- Keyboard focus is visible and reduced-motion behavior still works
-- Decorative motion does not obscure text or content
-- Scroll-scrubbed media loads metadata cleanly, reveals only after a decoded frame is ready, and scrubs smoothly in both directions without blank frames
+- `ThirdScreen` is the only live visual section at present; `Hero` is commented out
+- The intro plays on every full navigation or reload and uses no persistent storage
+- The warm-paper layer stays solid until the real video can display frame zero
+- The inverse sprite reveals the underlying artwork; it must never render a black splash
+- The loader blocks scrolling and root interaction, restores both on exit, and cannot trap the visitor
+- `ThirdScreen` stays paused while ScrollTrigger maps progress to queued seeks
+- Reduced-motion visitors bypass frame cycling and receive a safe direct handoff
 
-## Handoff
+## Verification
 
-Preserve the following so the next person can move quickly:
+Treat a change as complete only after the relevant checks pass:
 
-- The current section structure and any section order decisions
-- Asset placement and naming for hero artwork and the third-screen video
-- Motion assumptions, especially anything tied to scroll or reduced-motion behavior
-- Any content source files that drive selected work, about copy, or contact links
+- Run a production Vite build and `git diff --check`
+- Reload more than once; confirm the intro restarts without local/session storage
+- Confirm paper appears before React, artwork is revealed inside the ink boundary, and no navy or black flash appears
+- Confirm the loader waits for `portfolio:first-frame-ready`, exits, unlocks the root, and refreshes ScrollTrigger
+- Check desktop and narrow mobile crops
+- Confirm the video is paused at frame zero after the handoff and advances smoothly in both scroll directions
+- Exercise or inspect sprite/video failure and the 12-second safety timeout when loader behavior changes
+- Check reduced motion and browser console output
+
+## Worktree Safety
+
+The worktree contains modified and untracked media/build artifacts. Preserve unrelated files and do not clean, overwrite, or revert them as part of routine implementation or documentation work.

@@ -1,35 +1,50 @@
 # Progress Tracker
 
-This project has moved past the initial setup stage. The Hero, scroll-scrubbed About parchment, and the new third-screen video scrub are implemented, and the next work should build the remaining portfolio sections and refine content/details.
+## Current Phase
 
-## Milestones
+The live portfolio is intentionally focused on the opening ink reveal and the `ThirdScreen` scroll-scrub sequence. Hero/About code exists but is disabled in `App.jsx`; the remaining portfolio content sections are not yet implemented.
 
-1. Establish the base app shell and content structure
-2. Implement the hero composition, layered landscape assets, and initial motion
-3. Build the selected work, about, process, notes, and contact sections (About motion shell and third-screen motion handoff implemented)
-4. Add responsive behavior, reduced-motion support, and accessibility polish
-5. Verify performance, polish visuals, and prepare for launch
+## Completed
 
-## Current Status
-
-Current phase: the Hero transition, pinned About parchment reveal, and third-screen video scrub are implemented and verified.
-
-Next concrete step: add the selected work, process, notes, and contact sections, then replace placeholder About content if final copy changes.
+- React/Vite shell with GSAP, ScrollTrigger, Lenis, and reduced-motion detection
+- Full-viewport `ThirdScreen.mp4` section
+- Queued, pinned scroll-to-video seeking with forward/reverse synchronization
+- Idempotent first-frame readiness event from `loadeddata`
+- Pre-React warm-paper loader mounted in `index.html`
+- Deterministic 24-frame ink source and inverse reveal sprite generator
+- Artwork-reveal mask that avoids black and navy transitional flashes
+- Loader interaction/scroll lock and accessibility restoration
+- Automatic playback on every reload with no persistent storage
+- Reduced-motion bypass and 12-second failure safety
+- Current pacing: 3.6-second growth, 400 ms hold, 560 ms fade
 
 ## Completed Verification
 
-- Production build passes with the About component mounted after the Hero
-- Forward and reverse parchment scrubbing were checked in-browser
-- Desktop and mobile parchment placement were checked without stretching or character overlap
-- The calibrated crop removes the initial white video rectangle
-- Direct `#about` navigation lands at the rolled-parchment starting state
-- Browser testing reported no console warnings or errors
-- The third-screen video section was checked for metadata loading, reveal timing, and scroll-scrub behavior in both directions
-- Desktop and mobile breakpoints were checked for the full-viewport third-screen crop and pin spacing
-- The handoff from the About final state into the video section did not show a blank frame in browser testing
+- Production Vite build and `git diff --check`
+- Deterministic sprite regeneration
+- Monotonic source and inverse mask progression
+- Fully opaque black source final frame and fully transparent inverse final frame
+- Consecutive desktop reloads
+- Responsive checks at 390×844, 768×1024, 1280×720, and 1440×900 during loader development
+- Root remains inert while loading and is unlocked after exit
+- Video is visible and paused at time zero during handoff
+- Scroll seeking advances the paused video after reveal
+- No browser console warnings or errors in the completed checks
 
-## Risks / Blockers
+## Next Milestones
 
-- Final content for projects, about copy, and socials still needs to be assembled
-- The Hero-to-About transition, parchment placement, and third-screen crop may need a final visual polish pass on physical devices
-- Production host flow will be confirmed when the repo deployment is ready
+1. Decide whether and when to re-enable the existing Hero/About sequence.
+2. Add selected work and project data.
+3. Add process, notes, contact, and footer sections.
+4. Finalize biography, project descriptions, social links, and contact copy.
+5. Run physical-device performance, crop, reduced-motion, and failure-path QA.
+6. Confirm the final production host, domain, and repository deployment flow.
+
+## Risks and Open Items
+
+- A roughly 4.6-second intro is deliberately cinematic but should be evaluated against bounce and repeat-visit friction.
+- `ThirdScreen.mp4` is about 10 MB; performance on slower mobile networks still needs physical-device validation.
+- The 12-second fallback has been exercised indirectly during cold local loading, but deliberate missing-asset production testing remains useful.
+- The skip link currently targets `#hero` while Hero is disabled, so accessibility navigation should be corrected when the live section structure is finalized.
+- Final portfolio content is still missing.
+- The worktree contains unrelated modified and untracked assets/build output that must be preserved.
