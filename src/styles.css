@@ -40,6 +40,10 @@ body {
   overflow-x: clip;
 }
 
+body.intro-active {
+  overflow: hidden;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -102,6 +106,58 @@ button:focus-visible {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.intro-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  background: #eadcb9;
+  opacity: 1;
+  transition: opacity 450ms ease;
+}
+
+.intro-loader--exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-loader__video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+}
+
+.intro-loader__skip {
+  position: absolute;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 1;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(244, 237, 220, 0.5);
+  border-radius: 999px;
+  background: rgba(8, 26, 43, 0.68);
+  color: #f4eddc;
+  font: 600 0.82rem/1 var(--body);
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(8, 26, 43, 0.18);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.intro-loader__skip:hover {
+  background: rgba(8, 26, 43, 0.86);
+  transform: translateY(-1px);
 }
 
 .hero {

@@ -48,7 +48,7 @@ export default function App() {
       <a className="skip-link" href="#hero">
         Skip to content
       </a>
-      <Hero reducedMotion={prefersReducedMotion} />
+      {/* <Hero reducedMotion={prefersReducedMotion} /> */}
       <ThirdScreen reducedMotion={prefersReducedMotion} />
     </div>
   );

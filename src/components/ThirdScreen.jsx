@@ -7,6 +7,8 @@ gsap.registerPlugin(ScrollTrigger);
 const thirdScreenSrc = `${import.meta.env.BASE_URL}hero/ThirdScreen.mp4`;
 const END_FRAME_OFFSET = 0.02;
 const SCROLL_PIXELS_PER_SECOND = 520;
+const SEEK_THRESHOLD = 1 / 30;
+let firstFrameReadyDispatched = false;
 
 export function ThirdScreen({ reducedMotion }) {
   const sectionRef = useRef(null);
@@ -21,6 +23,9 @@ export function ThirdScreen({ reducedMotion }) {
     }
 
     let scrollTrigger = null;
+    let seekFrame = 0;
+    let requestedTime = 0;
+    let seekInFlight = false;
 
     const getEndTime = () => Math.max(video.duration - END_FRAME_OFFSET, 0);
 
@@ -28,14 +33,49 @@ export function ThirdScreen({ reducedMotion }) {
       gsap.set(video, { autoAlpha: 1 });
     };
 
-    const syncVideoToScroll = (progress) => {
+    const signalFirstFrameReady = () => {
+      revealVideo();
+
+      if (!firstFrameReadyDispatched) {
+        firstFrameReadyDispatched = true;
+        window.dispatchEvent(new Event('portfolio:first-frame-ready'));
+      }
+    };
+
+    const commitRequestedSeek = () => {
+      seekFrame = 0;
+
+      if (seekInFlight || Math.abs(video.currentTime - requestedTime) < SEEK_THRESHOLD) {
+        return;
+      }
+
+      seekInFlight = true;
+      video.pause();
+      video.currentTime = requestedTime;
+    };
+
+    const requestSeek = () => {
+      if (!seekFrame) {
+        seekFrame = window.requestAnimationFrame(commitRequestedSeek);
+      }
+    };
+
+    const handleSeeked = () => {
+      seekInFlight = false;
+      revealVideo();
+
+      if (Math.abs(video.currentTime - requestedTime) >= SEEK_THRESHOLD) {
+        requestSeek();
+      }
+    };
+
+    const syncSceneToScroll = (progress) => {
       if (!Number.isFinite(video.duration) || video.duration <= 0) {
         return;
       }
 
-      const nextTime = gsap.utils.clamp(0, getEndTime(), progress * getEndTime());
-      video.pause();
-      video.currentTime = nextTime;
+      requestedTime = gsap.utils.clamp(0, getEndTime(), progress * getEndTime());
+      requestSeek();
     };
 
     const setupScrollScrub = () => {
@@ -54,8 +94,8 @@ export function ThirdScreen({ reducedMotion }) {
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (self) => syncVideoToScroll(self.progress),
-        onRefresh: (self) => syncVideoToScroll(self.progress),
+        onUpdate: (self) => syncSceneToScroll(self.progress),
+        onRefresh: (self) => syncSceneToScroll(self.progress),
       });
 
       ScrollTrigger.refresh();
@@ -71,11 +111,16 @@ export function ThirdScreen({ reducedMotion }) {
       setupScrollScrub();
     };
 
+    const handleLoaderComplete = () => {
+      window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+
     gsap.set(video, { autoAlpha: 0 });
     video.pause();
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('loadeddata', revealVideo);
-    video.addEventListener('seeked', revealVideo, { once: true });
+    video.addEventListener('loadeddata', signalFirstFrameReady);
+    video.addEventListener('seeked', handleSeeked);
+    window.addEventListener('portfolio:loader-complete', handleLoaderComplete);
 
     if (video.readyState >= 1) {
       handleLoadedMetadata();
@@ -84,13 +129,19 @@ export function ThirdScreen({ reducedMotion }) {
     }
 
     if (video.readyState >= 2) {
-      revealVideo();
+      signalFirstFrameReady();
+    }
+
+    if (window.__portfolioLoaderComplete) {
+      handleLoaderComplete();
     }
 
     return () => {
+      window.cancelAnimationFrame(seekFrame);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('loadeddata', revealVideo);
-      video.removeEventListener('seeked', revealVideo);
+      video.removeEventListener('loadeddata', signalFirstFrameReady);
+      video.removeEventListener('seeked', handleSeeked);
+      window.removeEventListener('portfolio:loader-complete', handleLoaderComplete);
       scrollTrigger?.kill();
     };
   }, [reducedMotion]);
