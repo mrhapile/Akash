@@ -17,7 +17,7 @@ This is a motion-led personal developer/design portfolio. Treat the checked-in i
 
 Every full load or reload begins with a warm-paper overlay. After both the inverse ink sprite and `ThirdScreen.mp4` frame zero are ready, a 24-frame mask reveals the actual artwork over 3.6 seconds, holds for 400 ms, and fades over 560 ms. There is no local- or session-storage suppression.
 
-`ThirdScreen` remains paused and maps pinned scroll progress to queued video seeks. The loader and React coordinate through the internal `portfolio:first-frame-ready` and `portfolio:loader-complete` events.
+`ThirdScreen` remains paused and maps at least the first 5,200px of pinned scroll progress to queued video seeks. After the final frame, a responsive dark-passage phase closes to black, holds briefly, and reveals `Monk-Peace.png` as an image-only landing state. The loader and React coordinate through the internal `portfolio:first-frame-ready` and `portfolio:loader-complete` events.
 
 ## Product Direction
 
@@ -28,5 +28,7 @@ The intended portfolio remains calm, editorial, and Japanese watercolor-inspired
 - Preserve the current choice to render `ThirdScreen` directly unless the user explicitly restores `Hero`.
 - Keep the ink reveal automatic on every full reload and free of black transitional frames.
 - Keep `ThirdScreen.mp4` as the live source; `ThirdScreen-optimized.mp4` is not currently used.
+- Keep the monk environment stationary behind the dark curtain; do not reintroduce a full rectangular slide between the two scenes.
+- Preserve the monk image failure fallback, which leaves the final video frame visible instead of revealing black.
 - Keep `Loading.mp4`, `Loading-end.png`, and `IntroLoader.jsx` unused unless explicitly revisited.
-- Verify changes against reduced motion, responsive cropping, first-frame readiness, and scroll-scrub synchronization.
+- Verify changes against reduced motion, responsive cropping, first-frame readiness, scroll-scrub synchronization, all three passage phases, and reverse traversal.

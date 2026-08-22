@@ -24,7 +24,7 @@ The interface should feel calm, crafted, and editorial. Japanese watercolor-insp
 
 ## Current Live Content
 
-Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and scrubs with scroll. Hero/About styles and components remain in the codebase for possible restoration but should not be documented as currently visible.
+Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and first scrubs its video with scroll. Its final frame then enters a horizontal dark passage: the forest closes into black, black holds from 30–45% of the outro, and the same curtain continues left to uncover the stationary monk clearing. Hero/About styles and components remain in the codebase for possible restoration but should not be documented as currently visible.
 
 ## Accessibility
 
@@ -33,17 +33,15 @@ Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and scrubs
 - Keep `#root` inert and `aria-hidden` only while the loader is active, then restore both
 - Keep scrolling locked during the loader and restore it before ScrollTrigger refresh
 - Honor `prefers-reduced-motion`
+- Under reduced motion, show the video and monk artwork as two normal full-height panels with no pin or curtain
 - Avoid hover-only interactions and horizontal overflow
-- Ensure content remains understandable if animation, sprite loading, or video loading fails
+- Ensure content remains understandable if animation, sprite loading, video loading, or monk image loading fails
 
 ## Responsive Guidance
 
 - Preserve the sprite’s square frame ratio and centered crop
 - Use `svh`/`dvh` deliberately for full-screen sections
 - Verify 390px mobile width, tablet portrait, and landscape desktop
+- Check the close, blackout hold, reveal, and final monk crop whenever passage timing or media positioning changes
 - Reduce decorative density before reducing core content
 - Recheck artwork focal points whenever the live video or `object-position` changes
-
-## Known UI Follow-up
-
-The current skip link targets `#hero`, but Hero is disabled. Update the target or restore Hero when the final live section structure is decided.

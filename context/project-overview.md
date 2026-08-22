@@ -25,6 +25,7 @@ The live app currently contains:
 - An automatic pre-React ink reveal on every page load/reload
 - A warm-paper opening state that reveals the actual first frame of `ThirdScreen.mp4`
 - A full-viewport pinned ThirdScreen video controlled by scroll
+- A reversible dark forest passage from the video's final frame into the image-only `Monk-Peace.png` landing state
 - Reduced-motion behavior and smooth scrolling integration
 
 Hero and About are implemented in source but disabled. Selected work, process, notes, contact, and footer are still roadmap items.
