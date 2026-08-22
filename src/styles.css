@@ -433,7 +433,62 @@ button:focus-visible {
   background: var(--navy);
 }
 
-.third-screen__video {
+.third-screen__panel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.third-screen__panel--video {
+  z-index: 1;
+  background: var(--navy);
+}
+
+.third-screen__panel--monk {
+  z-index: 2;
+  background: #071610;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.third-screen__curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  background: #020708;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.third-screen__curtain::before,
+.third-screen__curtain::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18vw;
+}
+
+.third-screen__curtain::before {
+  right: 100%;
+  background: linear-gradient(90deg, transparent, #020708);
+}
+
+.third-screen__curtain::after {
+  left: 100%;
+  background: linear-gradient(90deg, #020708, transparent);
+}
+
+.third-screen__video,
+.third-screen__monk {
   position: absolute;
   inset: 0;
   display: block;
@@ -443,7 +498,42 @@ button:focus-visible {
   object-position: center center;
   user-select: none;
   pointer-events: none;
+}
+
+.third-screen__video {
   will-change: opacity;
+}
+
+.third-screen__monk {
+  will-change: transform, filter;
+}
+
+.third-screen--reduced {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.third-screen--reduced .third-screen__panel {
+  position: relative;
+  inset: auto;
+  height: 100svh;
+  min-height: 100svh;
+  transform: none !important;
+}
+
+.third-screen--reduced .third-screen__panel--monk {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.third-screen--reduced .third-screen__monk {
+  filter: none !important;
+  transform: none !important;
+}
+
+.third-screen--reduced .third-screen__curtain {
+  display: none;
 }
 
 @media (max-width: 720px) {
@@ -504,7 +594,8 @@ button:focus-visible {
     transform: translateX(-50%);
   }
 
-  .third-screen__video {
+  .third-screen__video,
+  .third-screen__monk {
     object-position: 50% 50%;
   }
 
@@ -576,6 +667,16 @@ button:focus-visible {
   }
 
   .third-screen {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .third-screen--reduced {
+    height: auto;
+    min-height: 0;
+  }
+
+  .third-screen--reduced .third-screen__panel {
     height: 100dvh;
     min-height: 100dvh;
   }
