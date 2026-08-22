@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="ink-loader-active">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,11 +7,130 @@
       name="description"
       content="A motion-led developer and design portfolio with editorial typography and watercolor-inspired landscape artwork."
     />
+    <link rel="preload" as="image" href="/hero/ink-splash-sprite.png" />
+    <style>
+      html.ink-loader-active,
+      html.ink-loader-active body {
+        overflow: hidden;
+      }
+
+      #ink-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        overflow: hidden;
+        background: #eadcb9;
+        opacity: 1;
+        transition: opacity 180ms ease;
+      }
+
+      #ink-loader.is-exiting {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #ink-loader-sprite {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 160vmax;
+        height: 160vmax;
+        background-image: url("/hero/ink-splash-sprite.png");
+        background-repeat: no-repeat;
+        background-size: 2400% 100%;
+        background-position: 0 0;
+        transform: translate(-50%, -50%);
+        will-change: background-position;
+      }
+
+      #ink-loader.is-playing #ink-loader-sprite {
+        animation: ink-splash-frames 900ms steps(23, end) forwards;
+      }
+
+      @keyframes ink-splash-frames {
+        to {
+          background-position: 100% 0;
+        }
+      }
+    </style>
     <title>Akash Anand | Portfolio</title>
-    <script type="module" crossorigin src="/assets/index-CFUUnvjt.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CsZCYrwu.css">
+    <script type="module" crossorigin src="/assets/index-BC-YymLD.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-D70BPQqH.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="ink-loader" aria-hidden="true" data-sprite="/hero/ink-splash-sprite.png">
+      <div id="ink-loader-sprite"></div>
+    </div>
+    <div id="root" inert aria-hidden="true"></div>
+    <script>
+      (() => {
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+
+        const loader = document.getElementById('ink-loader');
+        const sprite = document.getElementById('ink-loader-sprite');
+        const root = document.getElementById('root');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let animationDone = false;
+        let contentReady = false;
+        let dismissed = false;
+
+        const revealPage = () => {
+          if (dismissed || (!animationDone || !contentReady)) return;
+          dismissed = true;
+          window.clearTimeout(safetyTimer);
+          document.documentElement.classList.remove('ink-loader-active');
+          root.removeAttribute('inert');
+          root.removeAttribute('aria-hidden');
+          loader.classList.add('is-exiting');
+          window.__portfolioLoaderComplete = true;
+          window.dispatchEvent(new Event('portfolio:loader-complete'));
+          window.setTimeout(() => loader.remove(), 220);
+        };
+
+        const finishAnimation = () => {
+          window.setTimeout(() => {
+            animationDone = true;
+            revealPage();
+          }, 50);
+        };
+
+        const forceReveal = () => {
+          animationDone = true;
+          contentReady = true;
+          revealPage();
+        };
+
+        window.addEventListener('portfolio:first-frame-ready', () => {
+          contentReady = true;
+          revealPage();
+        }, { once: true });
+
+        loader.addEventListener('animationend', finishAnimation, { once: true });
+        loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+
+        const safetyTimer = window.setTimeout(forceReveal, 2500);
+        const image = new Image();
+        image.src = loader.dataset.sprite;
+
+        const start = () => {
+          if (reducedMotion) {
+            sprite.style.backgroundPosition = '100% 0';
+            finishAnimation();
+            return;
+          }
+          window.requestAnimationFrame(() => loader.classList.add('is-playing'));
+        };
+
+        image.addEventListener('error', forceReveal, { once: true });
+        if (image.decode) {
+          image.decode().then(start).catch(forceReveal);
+        } else if (image.complete) {
+          start();
+        } else {
+          image.addEventListener('load', start, { once: true });
+        }
+      })();
+    </script>
   </body>
 </html>
