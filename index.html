@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="ink-loader-active">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,10 +7,153 @@
       name="description"
       content="A motion-led developer and design portfolio with editorial typography and watercolor-inspired landscape artwork."
     />
+    <link rel="preload" as="image" href="%BASE_URL%hero/ink-splash-reveal-sprite.png" />
+    <style>
+      html.ink-loader-active,
+      html.ink-loader-active body {
+        overflow: hidden;
+      }
+
+      #ink-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        overflow: hidden;
+        opacity: 1;
+        transition: opacity 560ms ease;
+      }
+
+      #ink-loader.is-exiting {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #ink-loader-paper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 160vmax;
+        height: 160vmax;
+        background: #eadcb9;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: 2400% 100%;
+        mask-size: 2400% 100%;
+        -webkit-mask-position: 0 0;
+        mask-position: 0 0;
+        transform: translate(-50%, -50%);
+        will-change: -webkit-mask-position, mask-position;
+      }
+
+      #ink-loader.is-playing #ink-loader-paper,
+      #ink-loader.is-reduced #ink-loader-paper {
+        -webkit-mask-image: url("%BASE_URL%hero/ink-splash-reveal-sprite.png");
+        mask-image: url("%BASE_URL%hero/ink-splash-reveal-sprite.png");
+      }
+
+      #ink-loader.is-playing #ink-loader-paper {
+        animation: ink-splash-frames 3600ms steps(23, end) forwards;
+      }
+
+      #ink-loader.is-reduced #ink-loader-paper {
+        -webkit-mask-position: 100% 0;
+        mask-position: 100% 0;
+      }
+
+      @keyframes ink-splash-frames {
+        to {
+          -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
+        }
+      }
+    </style>
     <title>Akash Anand | Portfolio</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="ink-loader" aria-hidden="true" data-sprite="%BASE_URL%hero/ink-splash-reveal-sprite.png">
+      <div id="ink-loader-paper"></div>
+    </div>
+    <div id="root" inert aria-hidden="true"></div>
+    <script>
+      (() => {
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+
+        const loader = document.getElementById('ink-loader');
+        const root = document.getElementById('root');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let animationDone = false;
+        let contentReady = false;
+        let spriteReady = false;
+        let started = false;
+        let dismissed = false;
+
+        const revealPage = () => {
+          if (dismissed || (!animationDone || !contentReady)) return;
+          dismissed = true;
+          window.clearTimeout(safetyTimer);
+          document.documentElement.classList.remove('ink-loader-active');
+          root.removeAttribute('inert');
+          root.removeAttribute('aria-hidden');
+          loader.classList.add('is-exiting');
+          window.__portfolioLoaderComplete = true;
+          window.dispatchEvent(new Event('portfolio:loader-complete'));
+          window.setTimeout(() => loader.remove(), 680);
+        };
+
+        const finishAnimation = () => {
+          window.setTimeout(() => {
+            animationDone = true;
+            revealPage();
+          }, 400);
+        };
+
+        const forceReveal = () => {
+          animationDone = true;
+          contentReady = true;
+          revealPage();
+        };
+
+        const startAnimation = () => {
+          if (started || !spriteReady || !contentReady) return;
+          started = true;
+
+          if (reducedMotion) {
+            loader.classList.add('is-reduced');
+            finishAnimation();
+            return;
+          }
+
+          window.requestAnimationFrame(() => loader.classList.add('is-playing'));
+        };
+
+        window.addEventListener('portfolio:first-frame-ready', () => {
+          contentReady = true;
+          startAnimation();
+        }, { once: true });
+
+        loader.addEventListener('animationend', finishAnimation, { once: true });
+        loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+
+        const safetyTimer = window.setTimeout(forceReveal, 12000);
+        const image = new Image();
+        image.src = loader.dataset.sprite;
+
+        const markSpriteReady = () => {
+          spriteReady = true;
+          startAnimation();
+        };
+
+        image.addEventListener('error', forceReveal, { once: true });
+        if (image.decode) {
+          image.decode().then(markSpriteReady).catch(forceReveal);
+        } else if (image.complete) {
+          image.naturalWidth ? markSpriteReady() : forceReveal();
+        } else {
+          image.addEventListener('load', markSpriteReady, { once: true });
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
