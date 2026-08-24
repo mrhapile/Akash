@@ -5,15 +5,19 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const thirdScreenSrc = `${import.meta.env.BASE_URL}hero/ThirdScreen.mp4`;
+const transitionSrc = `${import.meta.env.BASE_URL}hero/Transition.png`;
 const monkPeaceSrc = `${import.meta.env.BASE_URL}hero/Monk-Peace.png`;
 const END_FRAME_OFFSET = 0.02;
 const SCROLL_PIXELS_PER_SECOND = 520;
-const OUTRO_SCROLL_VIEWPORTS = 2.4;
-const MIN_OUTRO_SCROLL_DISTANCE = 1800;
-const MAX_OUTRO_SCROLL_DISTANCE = 3000;
-const OUTRO_CLOSE_END = 0.3;
-const OUTRO_HOLD_END = 0.45;
-const CURTAIN_TRAVEL = 118;
+const TRANSITION_SCROLL_VIEWPORTS = 1.25;
+const MIN_TRANSITION_SCROLL_DISTANCE = 1000;
+const MAX_TRANSITION_SCROLL_DISTANCE = 1800;
+const MONK_SCROLL_VIEWPORTS = 1;
+const MIN_MONK_SCROLL_DISTANCE = 900;
+const MAX_MONK_SCROLL_DISTANCE = 1600;
+const ENTRY_BLEND_ALPHA = 0.88;
+const TRANSITION_ENTRY_SCALE = 1.06;
+const MONK_ENTRY_SCALE = 1.07;
 const SEEK_THRESHOLD = 1 / 30;
 let firstFrameReadyDispatched = false;
 
@@ -21,19 +25,32 @@ export function ThirdScreen({ reducedMotion }) {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
   const videoPanelRef = useRef(null);
+  const trackRef = useRef(null);
+  const transitionPanelRef = useRef(null);
+  const transitionImageRef = useRef(null);
   const monkPanelRef = useRef(null);
   const monkImageRef = useRef(null);
-  const curtainRef = useRef(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const video = videoRef.current;
     const videoPanel = videoPanelRef.current;
+    const track = trackRef.current;
+    const transitionPanel = transitionPanelRef.current;
+    const transitionImage = transitionImageRef.current;
     const monkPanel = monkPanelRef.current;
     const monkImage = monkImageRef.current;
-    const curtain = curtainRef.current;
 
-    if (!section || !video || !videoPanel || !monkPanel || !monkImage || !curtain) {
+    if (
+      !section ||
+      !video ||
+      !videoPanel ||
+      !track ||
+      !transitionPanel ||
+      !transitionImage ||
+      !monkPanel ||
+      !monkImage
+    ) {
       return undefined;
     }
 
@@ -42,65 +59,97 @@ export function ThirdScreen({ reducedMotion }) {
     let requestedTime = 0;
     let seekInFlight = false;
     let latestTrigger = null;
+    let transitionImageReady = transitionImage.complete && transitionImage.naturalWidth > 0;
+    let transitionImageFailed = transitionImage.complete && transitionImage.naturalWidth === 0;
     let monkImageReady = monkImage.complete && monkImage.naturalWidth > 0;
     let monkImageFailed = monkImage.complete && monkImage.naturalWidth === 0;
     let disposed = false;
-    const easePassage = gsap.parseEase('power2.inOut');
 
     const getEndTime = () => Math.max(video.duration - END_FRAME_OFFSET, 0);
     const getVideoScrollDistance = () =>
       Math.max(window.innerHeight * 5, video.duration * SCROLL_PIXELS_PER_SECOND);
-    const getOutroScrollDistance = () =>
-      Math.round(
+    const canRunOutro = () =>
+      transitionImageReady && monkImageReady && !transitionImageFailed && !monkImageFailed;
+    const getTransitionScrollDistance = () => {
+      if (!canRunOutro()) {
+        return 0;
+      }
+
+      return Math.round(
         gsap.utils.clamp(
-          MIN_OUTRO_SCROLL_DISTANCE,
-          MAX_OUTRO_SCROLL_DISTANCE,
-          window.innerHeight * OUTRO_SCROLL_VIEWPORTS,
+          MIN_TRANSITION_SCROLL_DISTANCE,
+          MAX_TRANSITION_SCROLL_DISTANCE,
+          window.innerHeight * TRANSITION_SCROLL_VIEWPORTS,
         ),
       );
-
-    const resetOutro = () => {
-      gsap.set(videoPanel, { xPercent: 0, scale: 1 });
-      gsap.set(monkPanel, { autoAlpha: 0 });
-      gsap.set(monkImage, {
-        xPercent: 4,
-        scale: 1.12,
-        filter: 'brightness(0.55) saturate(0.65) hue-rotate(8deg)',
-      });
-      gsap.set(curtain, { xPercent: CURTAIN_TRAVEL, autoAlpha: 1 });
     };
+    const getMonkScrollDistance = () => {
+      if (!canRunOutro()) {
+        return 0;
+      }
 
-    const syncOutroToScroll = (progress) => {
-      if (!monkImageReady || monkImageFailed) {
-        resetOutro();
+      return Math.round(
+        gsap.utils.clamp(
+          MIN_MONK_SCROLL_DISTANCE,
+          MAX_MONK_SCROLL_DISTANCE,
+          window.innerHeight * MONK_SCROLL_VIEWPORTS,
+        ),
+      );
+    };
+    const getOutroScrollDistance = () => getTransitionScrollDistance() + getMonkScrollDistance();
+
+    const resetScene = () => {
+      if (reducedMotion) {
+        gsap.set([videoPanel, transitionPanel, monkPanel], {
+          xPercent: 0,
+          autoAlpha: 1,
+          '--edge-veil-opacity': 0,
+        });
+        gsap.set([transitionImage, monkImage], { scale: 1 });
         return;
       }
 
-      const closeProgress = easePassage(gsap.utils.clamp(0, 1, progress / OUTRO_CLOSE_END));
-      const revealProgress = easePassage(
-        gsap.utils.clamp(0, 1, (progress - OUTRO_HOLD_END) / (1 - OUTRO_HOLD_END)),
-      );
-      let curtainPosition = 0;
-
-      if (progress < OUTRO_CLOSE_END) {
-        curtainPosition = CURTAIN_TRAVEL * (1 - closeProgress);
-      } else if (progress > OUTRO_HOLD_END) {
-        curtainPosition = -CURTAIN_TRAVEL * revealProgress;
-      }
-
-      gsap.set(videoPanel, {
-        xPercent: -14 * closeProgress,
-        scale: 1 + 0.04 * closeProgress,
+      gsap.set(videoPanel, { xPercent: 0, autoAlpha: 1 });
+      gsap.set(transitionPanel, {
+        xPercent: 100,
+        autoAlpha: ENTRY_BLEND_ALPHA,
+        '--edge-veil-opacity': 1,
       });
       gsap.set(monkPanel, {
-        autoAlpha: progress >= OUTRO_HOLD_END ? 1 : 0,
+        xPercent: 100,
+        autoAlpha: ENTRY_BLEND_ALPHA,
+        '--edge-veil-opacity': 1,
+      });
+      gsap.set(transitionImage, { scale: TRANSITION_ENTRY_SCALE });
+      gsap.set(monkImage, { scale: MONK_ENTRY_SCALE });
+    };
+
+    const syncOutroToScroll = (transitionProgress, monkProgress) => {
+      if (!canRunOutro()) {
+        resetScene();
+        return;
+      }
+
+      const clampedTransitionProgress = gsap.utils.clamp(0, 1, transitionProgress);
+      const clampedMonkProgress = gsap.utils.clamp(0, 1, monkProgress);
+
+      gsap.set(videoPanel, { xPercent: -100 * clampedTransitionProgress });
+      gsap.set(transitionPanel, {
+        xPercent: 100 - 100 * clampedTransitionProgress - 100 * clampedMonkProgress,
+        autoAlpha: ENTRY_BLEND_ALPHA + (1 - ENTRY_BLEND_ALPHA) * clampedTransitionProgress,
+        '--edge-veil-opacity': 1 - clampedTransitionProgress,
+      });
+      gsap.set(monkPanel, {
+        xPercent: 100 - 100 * clampedMonkProgress,
+        autoAlpha: ENTRY_BLEND_ALPHA + (1 - ENTRY_BLEND_ALPHA) * clampedMonkProgress,
+        '--edge-veil-opacity': 1 - clampedMonkProgress,
+      });
+      gsap.set(transitionImage, {
+        scale: TRANSITION_ENTRY_SCALE - (TRANSITION_ENTRY_SCALE - 1) * clampedTransitionProgress,
       });
       gsap.set(monkImage, {
-        xPercent: 4 * (1 - revealProgress),
-        scale: 1.12 - 0.12 * revealProgress,
-        filter: `brightness(${0.55 + 0.45 * revealProgress}) saturate(${0.65 + 0.35 * revealProgress}) hue-rotate(${8 * (1 - revealProgress)}deg)`,
+        scale: MONK_ENTRY_SCALE - (MONK_ENTRY_SCALE - 1) * clampedMonkProgress,
       });
-      gsap.set(curtain, { xPercent: curtainPosition, autoAlpha: 1 });
     };
 
     const revealVideo = () => {
@@ -150,23 +199,61 @@ export function ThirdScreen({ reducedMotion }) {
 
       latestTrigger = trigger;
       const videoDistance = getVideoScrollDistance();
+      const transitionDistance = getTransitionScrollDistance();
+      const monkDistance = getMonkScrollDistance();
       const scrollDistance = trigger.progress * (trigger.end - trigger.start);
       const videoProgress = gsap.utils.clamp(0, 1, scrollDistance / videoDistance);
-      const outroProgress = gsap.utils.clamp(
-        0,
-        1,
-        (scrollDistance - videoDistance) / getOutroScrollDistance(),
-      );
+      const transitionProgress = transitionDistance
+        ? gsap.utils.clamp(0, 1, (scrollDistance - videoDistance) / transitionDistance)
+        : 0;
+      const monkProgress = monkDistance
+        ? gsap.utils.clamp(
+            0,
+            1,
+            (scrollDistance - videoDistance - transitionDistance) / monkDistance,
+          )
+        : 0;
 
       requestedTime = videoProgress * getEndTime();
-      syncOutroToScroll(outroProgress);
+      syncOutroToScroll(transitionProgress, monkProgress);
       requestSeek();
     };
 
     const resyncCurrentScene = () => {
+      scrollTrigger?.refresh();
+
       if (latestTrigger) {
         syncSceneToScroll(latestTrigger);
       }
+    };
+
+    const handleTransitionImageReady = () => {
+      if (disposed) {
+        return;
+      }
+
+      transitionImageReady = transitionImage.naturalWidth > 0;
+      transitionImageFailed = !transitionImageReady;
+      resyncCurrentScene();
+    };
+
+    const handleTransitionImageLoad = () => {
+      if (typeof transitionImage.decode !== 'function') {
+        handleTransitionImageReady();
+        return;
+      }
+
+      transitionImage.decode().then(handleTransitionImageReady).catch(handleTransitionImageReady);
+    };
+
+    const handleTransitionImageError = () => {
+      if (disposed) {
+        return;
+      }
+
+      transitionImageReady = false;
+      transitionImageFailed = true;
+      resyncCurrentScene();
     };
 
     const handleMonkImageReady = () => {
@@ -205,7 +292,7 @@ export function ThirdScreen({ reducedMotion }) {
 
       video.pause();
       video.currentTime = 0;
-      syncOutroToScroll(0);
+      resetScene();
 
       scrollTrigger = ScrollTrigger.create({
         trigger: section,
@@ -237,14 +324,24 @@ export function ThirdScreen({ reducedMotion }) {
     };
 
     gsap.set(video, { autoAlpha: 0 });
-    resetOutro();
+    resetScene();
     video.pause();
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('loadeddata', signalFirstFrameReady);
     video.addEventListener('seeked', handleSeeked);
+    transitionImage.addEventListener('load', handleTransitionImageLoad);
+    transitionImage.addEventListener('error', handleTransitionImageError);
     monkImage.addEventListener('load', handleMonkImageLoad);
     monkImage.addEventListener('error', handleMonkImageError);
     window.addEventListener('portfolio:loader-complete', handleLoaderComplete);
+
+    if (transitionImage.complete) {
+      if (transitionImage.naturalWidth > 0) {
+        handleTransitionImageLoad();
+      } else {
+        handleTransitionImageError();
+      }
+    }
 
     if (monkImage.complete) {
       if (monkImage.naturalWidth > 0) {
@@ -274,12 +371,22 @@ export function ThirdScreen({ reducedMotion }) {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('loadeddata', signalFirstFrameReady);
       video.removeEventListener('seeked', handleSeeked);
+      transitionImage.removeEventListener('load', handleTransitionImageLoad);
+      transitionImage.removeEventListener('error', handleTransitionImageError);
       monkImage.removeEventListener('load', handleMonkImageLoad);
       monkImage.removeEventListener('error', handleMonkImageError);
       window.removeEventListener('portfolio:loader-complete', handleLoaderComplete);
       scrollTrigger?.kill();
-      gsap.set([videoPanel, monkPanel, monkImage, curtain], {
-        clearProps: 'transform,filter,opacity,visibility',
+      gsap.set([track, transitionPanel, transitionImage, monkPanel, monkImage], {
+        clearProps:
+          'transform,transformOrigin,filter,opacity,visibility,width,height,--edge-veil-opacity',
+      });
+      gsap.set(videoPanel, {
+        clearProps:
+          'transform,transformOrigin,filter,opacity,visibility,width,height,--edge-veil-opacity',
+      });
+      gsap.set(video, {
+        clearProps: 'transform,transformOrigin,filter,opacity,visibility,width,height',
       });
     };
   }, [reducedMotion]);
@@ -291,30 +398,50 @@ export function ThirdScreen({ reducedMotion }) {
       ref={sectionRef}
       aria-label="Forest journey to a peaceful clearing"
     >
-      <div className="third-screen__panel third-screen__panel--video" ref={videoPanelRef}>
-        <video
-          ref={videoRef}
-          className="third-screen__video"
-          src={thirdScreenSrc}
-          preload="auto"
-          muted
-          playsInline
-          tabIndex={-1}
+      <div className="third-screen__track" ref={trackRef}>
+        <div className="third-screen__panel third-screen__panel--video" ref={videoPanelRef}>
+          <video
+            ref={videoRef}
+            className="third-screen__video"
+            src={thirdScreenSrc}
+            preload="auto"
+            muted
+            playsInline
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+        </div>
+        <div
+          className="third-screen__panel third-screen__panel--transition"
+          ref={transitionPanelRef}
           aria-hidden="true"
-        />
+        >
+          <img
+            ref={transitionImageRef}
+            className="third-screen__transition"
+            src={transitionSrc}
+            alt=""
+            loading="eager"
+            decoding="async"
+            fetchPriority="low"
+          />
+        </div>
+        <div
+          className="third-screen__panel third-screen__panel--monk"
+          ref={monkPanelRef}
+          aria-hidden="true"
+        >
+          <img
+            ref={monkImageRef}
+            className="third-screen__monk"
+            src={monkPeaceSrc}
+            alt=""
+            loading="eager"
+            decoding="async"
+            fetchPriority="low"
+          />
+        </div>
       </div>
-      <div className="third-screen__panel third-screen__panel--monk" ref={monkPanelRef}>
-        <img
-          ref={monkImageRef}
-          className="third-screen__monk"
-          src={monkPeaceSrc}
-          alt="A monk meditating in a sunlit forest clearing"
-          loading="eager"
-          decoding="async"
-          fetchPriority="low"
-        />
-      </div>
-      <div className="third-screen__curtain" ref={curtainRef} aria-hidden="true" />
     </section>
   );
 }
