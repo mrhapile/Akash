@@ -36,11 +36,10 @@
 - The loader dispatches `portfolio:loader-complete`; ThirdScreen then refreshes ScrollTrigger
 - Video seeking is queued: only one seek is active and the latest requested scroll position is retained
 - The video phase retains its 5,200px minimum scroll distance
-- The final frame continues into a `2.4 × viewport-height` dark passage, clamped to 1,800–3,000px
-- Passage phases are 0–30% forest close, 30–45% full-black hold, and 45–100% monk clearing reveal
-- `public/hero/Monk-Peace.png` remains stationary behind the curtain and ends at neutral transform/filter
-- Monk decode failure suppresses the passage and leaves the final video frame visible
-- Reduced motion renders the video and monk artwork as two normal full-height panels without the curtain
+- The final frame continues into a horizontal handoff that carries the video into cropped `public/hero/Transition.png`, then `public/hero/Monk-Peace.png`
+- The handoff uses transform-only panel motion, edge blending, opacity settle, and subtle image scale
+- Transition or monk decode failure suppresses the journey and leaves the final video frame visible
+- Reduced motion renders the video, transition artwork, and monk artwork as normal full-height panels without horizontal motion
 - Full reloads reset to scroll position and video frame zero
 
 ## Verified Behavior
@@ -52,9 +51,8 @@
 - The intro reveals the waterfall artwork inside the ink boundary without drawing a black splash
 - The root is inert during loading and unlocked after dismissal
 - ThirdScreen is paused at frame zero after reveal and advances with scroll
-- Dark-passage close, blackout hold, reveal, endpoint, and reverse traversal were checked at desktop and mobile sizes
-- Responsive refresh was checked while parked inside each passage phase
-- The monk endpoint has no transform/filter, no horizontal overflow, and retains its centered mobile focal point
+- Dark entry, horizontal handoff, monk endpoint, and reverse traversal were checked at desktop and mobile sizes
+- The handoff endpoint has no horizontal overflow and retains its centered mobile focal point
 - Browser checks reported no console warnings or errors
 
 ## Deployment

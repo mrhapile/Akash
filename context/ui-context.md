@@ -24,7 +24,7 @@ The interface should feel calm, crafted, and editorial. Japanese watercolor-insp
 
 ## Current Live Content
 
-Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and first scrubs its video with scroll. Its final frame then enters a horizontal dark passage: the forest closes into black, black holds from 30–45% of the outro, and the same curtain continues left to uncover the stationary monk clearing. Hero/About styles and components remain in the codebase for possible restoration but should not be documented as currently visible.
+Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and first scrubs its video with scroll. Its final frame then continues into a three-stage horizontal handoff: the video panel slides left, cropped `Transition.png` enters as a dark forest bridge with subtle scale/blend treatment, and `Monk-Peace.png` resolves into the calm landing frame. Hero/About styles and components remain in the codebase for possible restoration but should not be documented as currently visible.
 
 ## Accessibility
 
@@ -33,7 +33,7 @@ Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and first 
 - Keep `#root` inert and `aria-hidden` only while the loader is active, then restore both
 - Keep scrolling locked during the loader and restore it before ScrollTrigger refresh
 - Honor `prefers-reduced-motion`
-- Under reduced motion, show the video and monk artwork as two normal full-height panels with no pin or curtain
+- Under reduced motion, show the video, transition artwork, and monk artwork as normal full-height panels with no pin or horizontal motion
 - Avoid hover-only interactions and horizontal overflow
 - Ensure content remains understandable if animation, sprite loading, video loading, or monk image loading fails
 
@@ -42,6 +42,6 @@ Only `ThirdScreen` is mounted. It fills the viewport, remains paused, and first 
 - Preserve the sprite’s square frame ratio and centered crop
 - Use `svh`/`dvh` deliberately for full-screen sections
 - Verify 390px mobile width, tablet portrait, and landscape desktop
-- Check the close, blackout hold, reveal, and final monk crop whenever passage timing or media positioning changes
+- Check the dark entry crop and sideways strip alignment whenever journey timing or media positioning changes
 - Reduce decorative density before reducing core content
 - Recheck artwork focal points whenever the live video or `object-position` changes

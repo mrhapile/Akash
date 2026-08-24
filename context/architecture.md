@@ -33,9 +33,9 @@ Reduced motion skips sprite frame cycling, applies the final transparent mask st
 
 Scroll updates write only the latest requested time. A requestAnimationFrame commit and `seeked` gate prevent competing seeks while retaining the newest scroll position. After loader dismissal, `portfolio:loader-complete` triggers a ScrollTrigger refresh.
 
-After the video reaches its final frame, the same pin continues through a `2.4 × viewport-height` outro clamped to 1,800–3,000px. The final forest pans left as a soft-edged near-black curtain closes from the right, remains fully black from 30–45% outro progress, then continues left to uncover the stationary `public/hero/Monk-Peace.png` environment. The monk image resolves from a slight pan/zoom and muted grade to its exact source rendering at the endpoint. The sequence is fully reversible and recalculates on ScrollTrigger refresh.
+After the video reaches its final frame, the same pin continues through a horizontal outro that slides the video panel left, brings cropped `public/hero/Transition.png` in as a dark forest bridge, then lands on `public/hero/Monk-Peace.png`. The panels move with transform-only horizontal motion, edge blending, and subtle image scale. The sequence is fully reversible and recalculates its geometry on ScrollTrigger refresh.
 
-The monk image decodes independently and does not block the intro loader. If it fails, the curtain transition is suppressed and the final video frame remains visible. Reduced motion disables the pin and curtain and presents the video and monk artwork as two normal full-height panels.
+The transition and monk images decode independently and do not block the intro loader. If either fails, the passage is suppressed and the final video frame remains visible. Reduced motion disables the pin and presents the video, transition artwork, and monk artwork as normal full-height panels.
 
 ## Dormant Components and Assets
 

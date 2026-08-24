@@ -40,9 +40,9 @@ Do not hand-edit generated sprites.
 - Queue the newest requested time instead of issuing overlapping seeks
 - Refresh ScrollTrigger after layout-affecting loader removal
 - Keep reduced-motion media paused at frame zero
-- Keep the dark-passage distance separate from the video scrub distance so video pacing does not change
-- Gate the curtain on a decoded monk image and retain the final video frame if that image fails
-- Keep the monk environment stationary behind the curtain and finish at neutral transform/filter
+- Keep the passage distance separate from the video scrub distance so video pacing does not change
+- Gate the journey on decoded transition and monk images, and retain the final video frame if either fails
+- Move the horizontal handoff with transform-only panel motion, keep each panel `object-fit: cover`, and limit blending to edge veils, opacity settle, and subtle image scale
 
 ## Minimum Verification
 
@@ -52,5 +52,5 @@ Do not hand-edit generated sprites.
 - Loader runs on consecutive reloads and reveals artwork rather than a black/navy fallback
 - Responsive desktop/mobile coverage is centered
 - ThirdScreen remains paused at zero after reveal and scrubs correctly afterward
-- Dark-passage close, blackout hold, clearing reveal, endpoint, and reverse traversal work without horizontal overflow
-- Reduced motion presents two normal full-height panels without pinning or a curtain
+- Dark entry, horizontal handoff, monk endpoint, and reverse traversal work without document-level horizontal overflow
+- Reduced motion presents video, transition, and monk panels at normal full-height without pinning or horizontal motion

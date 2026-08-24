@@ -28,8 +28,8 @@ User-requested timing and presentation changes to the existing loader or scroll 
 - The inverse sprite reveals the underlying artwork; it must never render a black splash
 - The loader blocks scrolling and root interaction, restores both on exit, and cannot trap the visitor
 - `ThirdScreen` stays paused while ScrollTrigger maps progress to queued seeks
-- The monk environment remains stationary behind the dark curtain; the handoff must not regress to a rectangular panel slide
-- A failed monk image leaves the final video frame visible rather than exposing the curtain or an empty landing state
+- The handoff uses horizontally panning full-viewport panels with edge blending and subtle image scale; it must not regress to a hard rectangular slide
+- A failed transition or monk image leaves the final video frame visible rather than exposing an empty landing state
 - Reduced-motion visitors bypass frame cycling and receive a safe direct handoff
 
 ## Verification
@@ -42,7 +42,7 @@ Treat a change as complete only after the relevant checks pass:
 - Confirm the loader waits for `portfolio:first-frame-ready`, exits, unlocks the root, and refreshes ScrollTrigger
 - Check desktop and narrow mobile crops
 - Confirm the video is paused at frame zero after the handoff and advances smoothly in both scroll directions
-- Check all three dark-passage phases, the neutral monk endpoint, reverse traversal, and responsive refresh
+- Check the video scrub, strip endpoint, reverse traversal, and responsive refresh
 - Exercise or inspect sprite/video failure and the 12-second safety timeout when loader behavior changes
 - Check reduced motion and browser console output
 
